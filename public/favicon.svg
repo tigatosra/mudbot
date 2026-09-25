@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="metal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF7A00"/>
+      <stop offset="100%" stop-color="#382212"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+  <!-- Cog Base -->
+  <circle cx="50" cy="50" r="46" fill="#0A0C0E" stroke="#FF7A00" stroke-width="4"/>
+  <!-- Gear Teeth -->
+  <path d="M46 4 h8 v10 h-8 z M46 86 h8 v10 h-8 z M4 46 h10 v8 h-10 z M86 46 h10 v8 h-10 z M16 16 l7 7 -6 6 -7 -7 z M77 77 l7 7 -6 6 -7 -7 z M16 84 l-7 -7 6 -6 7 7 z M84 16 l7 7 -6 6 -7 -7 z" fill="#D4A373"/>
+  <!-- Sprout in Center -->
+  <path d="M50 72 V42 M50 42 C40 32 30 42 35 52 C40 60 50 42 50 42 Z M50 42 C60 32 70 42 65 52 C60 60 50 42 50 42 Z" stroke="#00E5FF" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
+  <circle cx="50" cy="38" r="4" fill="#00E5FF" filter="url(#glow)"/>
+</svg>
