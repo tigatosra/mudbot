@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
-import { Terminal, Send, ArrowUp, Radio } from 'lucide-react';
+import { Terminal, Send, ArrowUp, Radio, Lock } from 'lucide-react';
 import { soundController } from './AudioController';
+import { useDevSpace } from '../context/DevSpaceContext';
+import { DevPasscodeModal } from './DevSpace/DevPasscodeModal';
 
 export function DirtyFooter() {
   const [emailInput, setEmailInput] = useState('');
+  const [showPasscode, setShowPasscode] = useState(false);
+  const { isUnlocked, setIsUnlocked, setIsOpen } = useDevSpace();
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
     'MB-TELEMETRY KERNEL V2.4_DIRTY READY.',
     'LISTENING ON RF_MESH_PORT 8088...',
@@ -156,12 +160,28 @@ export function DirtyFooter() {
             &copy; {new Date().getFullYear()} MUD &amp; BOT COOPERATIVE. ALL DESIGNS OPEN-HARDWARE (CERN-OHL-S).
           </div>
 
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center gap-4 sm:gap-6">
             <a href="#hero" className="hover:text-amber transition">HERO</a>
             <a href="#exploded-view" className="hover:text-amber transition">DECONSTRUCTION</a>
             <a href="#project-hangar" className="hover:text-amber transition">HANGAR</a>
             <a href="#diy-blueprint" className="hover:text-amber transition">BLUEPRINTS</a>
             <a href="#manifesto" className="hover:text-amber transition">MANIFESTO</a>
+
+            {/* Espace Dev Button */}
+            <button
+              onClick={() => {
+                soundController.playMechanicalClick();
+                if (isUnlocked) {
+                  setIsOpen(true);
+                } else {
+                  setShowPasscode(true);
+                }
+              }}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-amber/15 border border-amber/40 text-amber hover:text-amber-bright text-xs font-mono font-bold transition hover:shadow-glow-amber active:scale-95"
+            >
+              <Lock className="w-3.5 h-3.5" />
+              <span>ESPACE DÉVELOPPEUR</span>
+            </button>
 
             <button
               onClick={scrollToTop}
@@ -173,6 +193,17 @@ export function DirtyFooter() {
           </div>
         </div>
       </div>
+
+      {/* Passcode Modal Fallback */}
+      <DevPasscodeModal
+        isOpen={showPasscode}
+        onClose={() => setShowPasscode(false)}
+        onSuccess={() => {
+          setIsUnlocked(true);
+          setShowPasscode(false);
+          setIsOpen(true);
+        }}
+      />
     </footer>
   );
 }

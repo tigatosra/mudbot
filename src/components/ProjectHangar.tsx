@@ -2,7 +2,9 @@ import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { HANGAR_PROJECTS, type HangarProject } from '../data/hangarProjects';
 import { soundController } from './AudioController';
-import { Activity, ChevronRight, X, Download } from 'lucide-react';
+import { Activity, ChevronRight, X, Download, ShoppingCart } from 'lucide-react';
+import { useDevSpace } from '../context/DevSpaceContext';
+import { DevPasscodeModal } from './DevSpace/DevPasscodeModal';
 
 interface TiltState {
   x: number;
@@ -12,6 +14,9 @@ interface TiltState {
 export function ProjectHangar() {
   const [selectedProject, setSelectedProject] = useState<HangarProject | null>(null);
   const [mascotMood, setMascotMood] = useState<'happy' | 'alert' | 'muddy' | 'sleep'>('happy');
+  const [showPasscode, setShowPasscode] = useState(false);
+
+  const { setIsOpen, isUnlocked, setIsUnlocked, setActiveProjectId, setActiveTab } = useDevSpace();
 
   // Interactive Bento Card with 3D Mouse Parallax Tilt
   const BentoCard = ({ project, isFeatured = false }: { project: HangarProject; isFeatured?: boolean }) => {
@@ -306,7 +311,25 @@ export function ProjectHangar() {
               <div className="text-xs font-mono text-steel/70">
                 FIRMWARE: <span className="text-cyan font-bold">{selectedProject.firmware}</span>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => {
+                    soundController.playMechanicalClick();
+                    setActiveProjectId(selectedProject.id);
+                    setActiveTab('bom');
+                    if (isUnlocked) {
+                      setIsOpen(true);
+                    } else {
+                      setShowPasscode(true);
+                    }
+                    setSelectedProject(null);
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber/20 via-mud/40 to-cyan/20 hover:from-amber/30 hover:to-cyan/30 border border-amber/70 hover:border-amber text-amber font-mono text-xs font-bold rounded-lg transition active:scale-95 shadow-glow-amber"
+                >
+                  <ShoppingCart className="w-4 h-4 text-amber" />
+                  <span>SOURCING ALIEXPRESS &amp; ESPACE DEV</span>
+                </button>
+
                 <button
                   onClick={() => {
                     soundController.playTerminalChirp();
@@ -328,6 +351,17 @@ export function ProjectHangar() {
           </motion.div>
         </div>
       )}
+
+      {/* PASSCODE MODAL FALLBACK */}
+      <DevPasscodeModal
+        isOpen={showPasscode}
+        onClose={() => setShowPasscode(false)}
+        onSuccess={() => {
+          setIsUnlocked(true);
+          setShowPasscode(false);
+          setIsOpen(true);
+        }}
+      />
     </section>
   );
 }

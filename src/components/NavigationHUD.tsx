@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Volume2, VolumeX, Menu, X, Wrench } from 'lucide-react';
+import { Volume2, VolumeX, Menu, X, Wrench, Lock } from 'lucide-react';
 import { soundController } from './AudioController';
+import { useDevSpace } from '../context/DevSpaceContext';
+import { DevPasscodeModal } from './DevSpace/DevPasscodeModal';
 
 export function NavigationHUD() {
   const [isMuted, setIsMuted] = useState(soundController.isMuted);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [showPasscode, setShowPasscode] = useState(false);
+
+  const { isUnlocked, setIsUnlocked, setIsOpen } = useDevSpace();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -112,6 +117,26 @@ export function NavigationHUD() {
             )}
           </button>
 
+          {/* ESPACE DÉVELOPPEURS (PRIVATE SECTION) */}
+          <button
+            onClick={() => {
+              soundController.playMechanicalClick();
+              if (isUnlocked) {
+                setIsOpen(true);
+              } else {
+                setShowPasscode(true);
+              }
+            }}
+            className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-amber/25 via-mud/50 to-cyan/25 border-2 border-amber hover:border-amber-bright text-amber hover:text-amber-bright font-mono text-xs font-bold transition shadow-glow-amber active:scale-95 group"
+            title="Accès Espace Développeurs Privé // BOM & Planification"
+          >
+            <Lock className="w-4 h-4 text-amber animate-pulse group-hover:scale-125 transition-transform" />
+            <span className="hidden sm:inline">ESPACE DEV</span>
+            <span className="text-[9px] px-1.5 py-0.5 bg-void-deep/80 rounded border border-amber/40 text-cyan font-extrabold">
+              PRIVÉ
+            </span>
+          </button>
+
           {/* CTA: CONFIGURE BOT */}
           <a
             href="#diy-blueprint"
@@ -154,6 +179,23 @@ export function NavigationHUD() {
             ))}
           </div>
 
+          {/* Mobile Espace Dev Button */}
+          <button
+            onClick={() => {
+              setMobileMenuOpen(false);
+              soundController.playMechanicalClick();
+              if (isUnlocked) {
+                setIsOpen(true);
+              } else {
+                setShowPasscode(true);
+              }
+            }}
+            className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-amber/30 to-cyan/30 border border-amber text-amber font-mono text-xs font-bold rounded-xl shadow-glow-amber"
+          >
+            <Lock className="w-4 h-4" />
+            <span>OUVRIR ESPACE DÉVELOPPEURS (PRIVÉ)</span>
+          </button>
+
           <a
             href="#diy-blueprint"
             onClick={() => {
@@ -167,6 +209,17 @@ export function NavigationHUD() {
           </a>
         </div>
       )}
+
+      {/* PASSCODE AUTHENTICATION MODAL */}
+      <DevPasscodeModal
+        isOpen={showPasscode}
+        onClose={() => setShowPasscode(false)}
+        onSuccess={() => {
+          setIsUnlocked(true);
+          setShowPasscode(false);
+          setIsOpen(true);
+        }}
+      />
     </nav>
   );
 }

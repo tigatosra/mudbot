@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { CustomCursor } from './components/CustomCursor';
 import { NavigationHUD } from './components/NavigationHUD';
 import { HeroScene } from './components/HeroScene';
@@ -8,9 +9,24 @@ import { BlueprintGenerator } from './components/BlueprintGenerator';
 import { EngineeringManifesto } from './components/EngineeringManifesto';
 import { DirtyFooter } from './components/DirtyFooter';
 import { soundController } from './components/AudioController';
-import { Wrench, ChevronDown, Layers, ArrowRight } from 'lucide-react';
+import { DevSpaceProvider, useDevSpace } from './context/DevSpaceContext';
+import { DevSpaceModal } from './components/DevSpace/DevSpaceModal';
+import { DevPasscodeModal } from './components/DevSpace/DevPasscodeModal';
+import { Wrench, ChevronDown, Layers, ArrowRight, Lock } from 'lucide-react';
 
-export function App() {
+function MudBotApp() {
+  const { isUnlocked, setIsUnlocked, setIsOpen } = useDevSpace();
+  const [showPasscode, setShowPasscode] = useState(false);
+
+  const handleOpenDevSpace = () => {
+    soundController.playMechanicalClick();
+    if (isUnlocked) {
+      setIsOpen(true);
+    } else {
+      setShowPasscode(true);
+    }
+  };
+
   return (
     <div className="relative min-h-screen bg-void text-steel-light selection:bg-cyan/30 selection:text-cyan font-sans overflow-x-hidden">
       {/* Custom Crosshair Cursor */}
@@ -56,11 +72,23 @@ export function App() {
             </div>
 
             {/* CTAs & Quick Telemetry Buttons */}
-            <div className="flex flex-col sm:flex-row lg:flex-col gap-3 min-w-[260px]">
+            <div className="flex flex-col sm:flex-row lg:flex-col gap-3 min-w-[280px]">
+              {/* DEV PORTAL BUTTON (PRIMARY NEW FEATURE) */}
+              <button
+                onClick={handleOpenDevSpace}
+                className="flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-r from-amber/25 via-mud/50 to-cyan/25 hover:from-amber/35 hover:to-cyan/35 border-2 border-amber hover:border-amber-bright text-amber font-mono text-xs font-bold rounded-xl transition shadow-glow-amber active:scale-95 text-center group"
+              >
+                <Lock className="w-4 h-4 text-amber group-hover:scale-110 transition-transform" />
+                <span>ESPACE DÉVELOPPEUR // BOM &amp; IA</span>
+                <span className="text-[10px] px-1.5 py-0.2 bg-void-deep/80 rounded border border-amber/40 text-cyan">
+                  PRIVÉ
+                </span>
+              </button>
+
               <a
                 href="#project-hangar"
                 onClick={() => soundController.playHydraulic()}
-                className="flex items-center justify-center gap-2.5 px-6 py-3.5 bg-amber hover:bg-amber-bright text-void-deep font-mono text-xs font-bold rounded-xl transition shadow-glow-amber active:scale-95 text-center"
+                className="flex items-center justify-center gap-2.5 px-6 py-3 bg-amber hover:bg-amber-bright text-void-deep font-mono text-xs font-bold rounded-xl transition shadow-glow-amber active:scale-95 text-center"
               >
                 <span>EXPLORE FLEET HANGAR</span>
                 <ArrowRight className="w-4 h-4" />
@@ -69,7 +97,7 @@ export function App() {
               <a
                 href="#exploded-view"
                 onClick={() => soundController.playMechanicalClick()}
-                className="flex items-center justify-center gap-2.5 px-6 py-3.5 bg-void border border-steel-border/80 hover:border-cyan text-steel-light font-mono text-xs font-semibold rounded-xl transition hover:text-cyan active:scale-95 text-center"
+                className="flex items-center justify-center gap-2.5 px-6 py-3 bg-void border border-steel-border/80 hover:border-cyan text-steel-light font-mono text-xs font-semibold rounded-xl transition hover:text-cyan active:scale-95 text-center"
               >
                 <Layers className="w-4 h-4 text-cyan" />
                 <span>INSPECT 3D ARCHITECTURE</span>
@@ -78,7 +106,7 @@ export function App() {
               <a
                 href="#diy-blueprint"
                 onClick={() => soundController.playTerminalChirp()}
-                className="flex items-center justify-center gap-2.5 px-6 py-2.5 bg-void-card/60 border border-steel-border/50 hover:border-timber text-timber font-mono text-xs rounded-xl transition text-center"
+                className="flex items-center justify-center gap-2.5 px-6 py-2 bg-void-card/60 border border-steel-border/50 hover:border-timber text-timber font-mono text-xs rounded-xl transition text-center"
               >
                 <Wrench className="w-3.5 h-3.5" />
                 <span>CONFIGURE DIY ROBOT</span>
@@ -134,7 +162,51 @@ export function App() {
 
       {/* 6. FOOTER — DIRTY TELEMETRY */}
       <DirtyFooter />
+
+      {/* FLOATING TACTICAL DEV PORTAL ACCESS PILL */}
+      <div className="fixed bottom-6 right-6 z-40">
+        <button
+          onClick={handleOpenDevSpace}
+          className="flex items-center gap-3 px-4 py-3 bg-void-card/95 hover:bg-void-deep border-2 border-amber hover:border-amber-bright text-steel-light rounded-2xl backdrop-blur-xl shadow-glow-amber transition-all duration-300 hover:scale-105 active:scale-95 group"
+          title="Ouvrir l'Espace Développeur Privé (BOM, AliExpress, Modèles IA, Gotchas)"
+        >
+          <div className="w-8 h-8 rounded-xl bg-amber/20 border border-amber/50 flex items-center justify-center shrink-0">
+            <Lock className="w-4 h-4 text-amber animate-pulse group-hover:scale-110 transition-transform" />
+          </div>
+          <div className="text-left font-mono">
+            <div className="flex items-center gap-1.5 text-[9px] text-cyan font-bold tracking-wider uppercase">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan shadow-glow-cyan" />
+              <span>CADENAS // ACCÈS PRIVÉ</span>
+            </div>
+            <div className="text-xs font-bold text-amber group-hover:text-amber-bright">
+              ESPACE DEV &amp; BOM
+            </div>
+          </div>
+        </button>
+      </div>
+
+      {/* DEV SPACE MASTER MODAL */}
+      <DevSpaceModal />
+
+      {/* PASSCODE AUTHENTICATION DIALOG */}
+      <DevPasscodeModal
+        isOpen={showPasscode}
+        onClose={() => setShowPasscode(false)}
+        onSuccess={() => {
+          setIsUnlocked(true);
+          setShowPasscode(false);
+          setIsOpen(true);
+        }}
+      />
     </div>
+  );
+}
+
+export function App() {
+  return (
+    <DevSpaceProvider>
+      <MudBotApp />
+    </DevSpaceProvider>
   );
 }
 
